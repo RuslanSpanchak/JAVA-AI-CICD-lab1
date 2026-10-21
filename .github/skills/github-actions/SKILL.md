@@ -1,33 +1,33 @@
 ---
 name: github-actions
-description: "Створює або перевіряє GitHub Actions workflow для Maven-проєкту з автоматичними тестами на Linux, Windows і macOS."
+description: "Створює або перевіряє GitHub Actions CI з матрицею Linux, Windows і macOS, запускаючи окремі build-скрипти."
 ---
 
 # GitHub Actions Skill
 
 ## Вхідні дані
-- `pom.xml` і вимоги до версії JDK.
-- Команда локальної перевірки.
-- Перелік ОС, на яких має працювати CI.
+- Maven-проєкт, `scripts/ci.sh`, `scripts/ci.bat`.
+- Версія JDK і цільові ОС.
 
 ## Порядок роботи
-1. Переглянь наявні workflow, щоб не створити дубль.
-2. Створи `.github/workflows/ci.yml` з тригерами `push`, `pull_request` і ручним `workflow_dispatch`.
-3. Використай matrix із `ubuntu-latest`, `windows-latest` і `macos-latest`.
-4. Налаштуй checkout, Temurin JDK, Maven cache і запуск `mvn -B --no-transfer-progress clean verify`.
-5. Встанови мінімальні дозволи токена, достатні для читання репозиторію (`contents: read`). Не додавай секрети.
-6. Перевір YAML синтаксично, якщо інструмент доступний, і зістав CI-команду з локальною командою.
-7. Зазнач, що локальна перевірка YAML не доводить успіху на всіх трьох runner-ах: реальний результат матриці буде доступний після запуску workflow на GitHub.
+1. Переглянь поточний workflow і скрипти, щоб не створити дублікати.
+2. Створи або онови `.github/workflows/ci.yml` із тригерами `push`, `pull_request` і `workflow_dispatch`.
+3. Використай одну job з matrix: `ubuntu-latest`, `windows-latest`, `macos-latest`.
+4. Виконай checkout і налаштування Temurin JDK 21 з Maven cache.
+5. У workflow не дублюй build-команди Maven: на Linux/macOS викликай `bash ./scripts/ci.sh`, на Windows — `scripts\ci.bat`.
+6. Скрипти мають виконувати Maven build/test, створювати `build/hello.jar` і перевіряти його запуск.
+7. Завантажуй `build/hello.jar` як artifact окремо для кожної ОС. Не зберігай секрети у workflow.
+8. Використовуй мінімальні дозволи `contents: read`.
 
-## Результат
-Файл `.github/workflows/ci.yml` із кросплатформною збіркою та тестуванням.
+## Очікуваний результат
+`.github/workflows/ci.yml`, що запускає однаковий сценарій перевірки на трьох ОС і публікує JAR як workflow artifact.
 
-## Критерії перевірки
-- Три ОС присутні у матриці.
-- Використовуються підтримувані `actions/checkout` і `actions/setup-java`.
-- JDK відповідає `pom.xml`.
-- Workflow зупиняється, якщо команда Maven повертає помилку.
-- Жоден секрет не зберігається у файлах репозиторію.
+## Перевірки
+- У matrix присутні Linux, Windows та macOS.
+- Для кожної ОС викликається відповідний скрипт.
+- Після скрипту існує `build/hello.jar`.
+- Відсутність артефакту призводить до помилки job.
+- Реальний remote успіх підтверджено лише після запуску workflow на GitHub.
 
-## Обробка помилок
-Якщо workflow чи інструмент перевірки не може бути запущений локально, явно познач це як неперевірений крок. Не стверджуй, що GitHub Actions пройшов, доки немає реального результату запуску.
+## Типові помилки
+Якщо скрипт відсутній або завершується помилкою, виправ його до CI-запуску. Якщо локально неможливо перевірити YAML або віддалений runner, зазнач це як неперевірений крок.

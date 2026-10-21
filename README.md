@@ -1,93 +1,88 @@
 # AI Agent CI/CD Lab — Java + Maven + JUnit
 
-Навчальний кросплатформний проєкт для лабораторної роботи **«Проєктування AI-агента для автоматизації розробки та CI/CD»**. Репозиторій містить agent manifest, повторно використовувані skills, команди-промпти, оркестратор, Java-застосунок, JUnit-тести та GitHub Actions.
+Навчальний кросплатформний проєкт для лабораторної роботи **«Проєктування AI-агента для автоматизації розробки та CI/CD»**.
 
-## Що робить застосунок
+* **Студент:** Спанчак Руслан Ігорович
+* **Група:** КІ-409
+* **Варіант: 5** (Java / Maven / JUnit 5)
+* **JDK:** 21
+* **Складання:** Apache Maven
+* **CI:** GitHub Actions — Windows, Linux і macOS
 
-`TextAnalyzer` підраховує:
-- слова, розділені пробільними символами;
-- символи як Unicode code points (наприклад, `😀` рахується як один символ);
-- рядки, розділені `\R` (у тому числі кінцевий порожній рядок після завершального переносу).
+## Що містить проєкт
 
-`null` відхиляється з `IllegalArgumentException`. Порожній рядок має 0 слів, символів і рядків.
+1. `HelloWorldApp` — мінімальний кросплатформний консольний застосунок, який виводить `Hello, World!`.
+2. `BasicAddition` і `BasicAdditionTest` — приклад логіки та її перевірки за допомогою JUnit 5.
+3. `TextAnalyzer` — додатковий навчальний приклад, який рахує слова, Unicode-коди символів і рядки.
+4. AI-агент із manifest, трьома skills, п'ятьма операційними commands і командою-orchestrator `init`.
+5. Скрипти локальної перевірки для Windows (`scripts/ci.bat`) та Linux/macOS (`scripts/ci.sh`).
+6. GitHub Actions workflow із матрицею трьох ОС та завантаженням створеного JAR як artifact.
 
 ## Вимоги
 
-- JDK 21;
-- Apache Maven 3.9.x або сумісна версія;
-- GitHub Copilot у редакторі, який підтримує agent profiles, prompt files та agent skills, для використання конфігурації агента.
+* JDK 21;
+* Apache Maven 3.9.x або сумісна версія;
+* Git;
+* GitHub Copilot у редакторі, який підтримує agent profiles, prompt files і agent skills, якщо потрібно запускати агента через Copilot.
 
-## Локальна збірка та тести
+## Локальне складання й запуск
 
-У корені репозиторію виконай:
-
-```bash
-mvn -B clean verify
-```
-
-Команда компілює проєкт, виконує JUnit-тести та створює JAR у `target/`.
-
-Запуск застосунку з аргументами:
+З кореня репозиторію виконай:
 
 ```bash
-java -jar target/text-analyzer-1.0.0.jar "Hello world"
+mvn -B --no-transfer-progress clean verify
+java -jar target/hello.jar
 ```
 
-Приклад результату:
+Очікуваний вивід останньої команди:
 
 ```text
-Words: 2
-Characters (Unicode code points): 11
-Lines: 1
+Hello, World!
 ```
 
-Якщо запускати без аргументів, програма запропонує ввести один рядок із клавіатури.
+Для повного локального циклу, який також створює копію виконуваного JAR у `build/hello.jar`:
+
+* **Windows:** `scripts\\ci.bat`
+* **Linux/macOS:** `bash scripts/ci.sh`
+
+Обидва скрипти виконують Maven build/test, створюють `build/hello.jar` і запускають саме цей артефакт. Каталоги `target/` та `build/` мають бути виключені з Git через `.gitignore`.
+
+Додатковий текстовий аналізатор можна запустити так:
+
+```bash
+java -cp target/hello.jar com.example.textanalyzer.TextAnalyzerApp "Hello world"
+```
 
 ## Використання AI-агента
 
-У GitHub Copilot Chat відкрий промпт-команду з каталогу `.github/prompts/` або запусти відповідну prompt file командою, яку підтримує твоя версія редактора:
+Профіль агента: `.github/agents/build-engineer.agent.md`.
 
-- `git-init.prompt.md` — безпечна ініціалізація Git, якщо це ще не репозиторій;
-- `create-project.prompt.md` — структура застосунку і тести;
-- `create-build.prompt.md` — Maven-конфігурація;
-- `create-actions.prompt.md` — CI workflow;
-- `check.prompt.md` — локальна перевірка;
-- `init.prompt.md` — оркестратор повного циклу.
+Skills у `.github/skills/`:
 
-Профіль агента: `.github/agents/build-engineer.agent.md`. Інструкції skills: `.github/skills/*/SKILL.md`.
+* `project-scaffold` — структура і початковий код;
+* `build-and-test` — Maven/JUnit і перевірка виконуваного JAR;
+* `github-actions` — CI workflow та артефакти.
 
-Перед прийняттям будь-яких змін переглядай diff і запускай перевірки. Не передавай AI секрети. Агентні промпти забороняють автоматичні commit/push і руйнівні Git-операції.
+Prompt-команди у `.github/prompts/`:
+
+* `git-init.prompt.md` — перевірка Git та `.gitignore`;
+* `create-project.prompt.md` — створення/перевірка коду й тесту;
+* `create-build.prompt.md` — Maven-конфігурація;
+* `create-actions.prompt.md` — CI workflow;
+* `check.prompt.md` — локальний аудит;
+* `init.prompt.md` — orchestrator повного процесу.
+
+У Copilot Chat вибери агент `build-engineer`, а далі запусти `/init`, якщо твоя версія редактора підтримує prompt files як slash-команди. Перед прийняттям змін переглянь diff і запускай перевірки. Агент не має робити commit/push автоматично, видаляти файли або працювати із секретами.
 
 ## CI/CD
 
-Файл `.github/workflows/ci.yml` запускає `mvn -B --no-transfer-progress clean verify` на `ubuntu-latest`, `windows-latest` і `macos-latest` під час `push`, `pull_request` або ручного запуску. Реальний стан усіх трьох середовищ треба підтвердити результатом workflow у вкладці **Actions** GitHub.
+`.github/workflows/ci.yml` реагує на push, pull request і ручний запуск. Matrix має виконувати `scripts/ci.sh` на Linux/macOS і `scripts/ci.bat` на Windows. Після успіху JAR завантажується як artifact для кожної ОС. Вважай CI успішним лише після фактичного зеленого запуску у вкладці **Actions** на GitHub.
 
-## Структура
+## Документація й докази
 
-```text
-.github/
-├── agents/build-engineer.agent.md
-├── prompts/
-│   ├── git-init.prompt.md
-│   ├── create-project.prompt.md
-│   ├── create-build.prompt.md
-│   ├── create-actions.prompt.md
-│   ├── check.prompt.md
-│   └── init.prompt.md
-├── skills/
-│   ├── project-scaffold/SKILL.md
-│   ├── build-and-test/SKILL.md
-│   └── github-actions/SKILL.md
-└── workflows/ci.yml
-src/
-├── main/java/com/example/textanalyzer/
-│   ├── TextAnalyzer.java
-│   └── TextAnalyzerApp.java
-└── test/java/com/example/textanalyzer/TextAnalyzerTest.java
-docs/
-├── architecture.md
-└── usage.md
-pom.xml
-README.md
-.gitignore
-```
+* Архітектура агента: [`docs/architecture.md`](docs/architecture.md)
+* Інструкція запуску: [`docs/usage.md`](docs/usage.md)
+* Шаблон журналу AI-взаємодії: [`docs/ai-log-template.md`](docs/ai-log-template.md)
+
+Журнал заповнюй фактичними запитами до AI, рішеннями, перевірками й помилками. Не вигадуй журнальні записи та не додавай паролі, токени чи приватні ключі.
+

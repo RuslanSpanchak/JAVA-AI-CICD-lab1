@@ -3,12 +3,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.example</groupId>
     <artifactId>text-analyzer</artifactId>
     <version>1.0.0</version>
-    <name>Text Analyzer</name>
-    <description>Minimal cross-platform Java application for AI-agent CI/CD lab.</description>
+    <name>AI Agent CI/CD Lab</name>
+    <description>Cross-platform Java project for an AI-agent CI/CD laboratory.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,6 +25,8 @@
     </dependencies>
 
     <build>
+        <!-- The executable artifact is deliberately named hello.jar for the lab. -->
+        <finalName>hello</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -47,7 +48,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.example.textanalyzer.TextAnalyzerApp</mainClass>
+                            <mainClass>com.example.hello.HelloWorldApp</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
