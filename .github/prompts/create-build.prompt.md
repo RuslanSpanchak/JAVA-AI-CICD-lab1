@@ -1,13 +1,13 @@
 ---
 name: create-build
-description: "Створює або перевіряє Maven-конфігурацію для Java 21 і JUnit 5."
+description: "Налаштовує Maven для Java 21, JUnit 5 та виконуваного target/hello.jar."
 agent: build-engineer
 ---
 
 Застосуй `.github/skills/build-and-test/SKILL.md`.
-
-1. Переглянь вихідний код, тести й наявний `pom.xml`.
-2. Переконайся, що проєкт використовує Java 21, JUnit Jupiter із тестовою областю видимості, Maven Compiler Plugin, Maven Surefire Plugin і Maven JAR Plugin із головним класом `com.example.textanalyzer.TextAnalyzerApp`.
-3. Збережи стандартну структуру Maven і стабільні версії залежностей/плагінів, явно задані в `pom.xml`.
-4. Не додавай зайві залежності. Не змінюй тести так, щоб приховати помилки.
-5. За можливості запусти `mvn -B clean verify` і наведи фактичний результат; якщо Maven недоступний, чітко зазнач це.
+1. Переглянь код, тести й наявний `pom.xml`.
+2. Переконайся, що Maven використовує Java 21, JUnit Jupiter (test scope), Maven Compiler Plugin, Surefire Plugin і Maven JAR Plugin.
+3. Налаштуй фінальне ім'я артефакту `hello.jar` і `Main-Class` `com.example.hello.HelloWorldApp`.
+4. Збережи залежності й налаштування, які ще використовує проєкт; не додавай зайвих бібліотек.
+5. Запусти `mvn -B --no-transfer-progress clean verify`, якщо інструменти доступні. Далі перевір `java -jar target/hello.jar`.
+6. Наведи фактичні результати build та тестів. Якщо команда не запускається або падає, зазнач точну причину.
