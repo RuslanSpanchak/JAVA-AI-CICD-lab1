@@ -1,16 +1,15 @@
 ---
 name: create-actions
-description: "Створює або перевіряє GitHub Actions CI для Maven-проєкту на Linux, Windows і macOS."
+description: "Створює CI для Java/Maven на Linux, Windows і macOS через окремі скрипти складання."
 agent: build-engineer
 ---
 
 Застосуй `.github/skills/github-actions/SKILL.md`.
-
-Створи або перевір `.github/workflows/ci.yml` так, щоб workflow:
-- запускався на `push`, `pull_request` і через `workflow_dispatch`;
-- мав матрицю `ubuntu-latest`, `windows-latest`, `macos-latest`;
-- використовував `actions/checkout@v4` та `actions/setup-java@v4` з Temurin JDK 21 і кешем Maven;
-- запускав `mvn -B --no-transfer-progress clean verify`;
-- мав `permissions: contents: read` і не вимагав секретів.
-
-Не стверджуй, що CI пройшов на GitHub, якщо workflow фактично не запускався там. Повідом результат статичної перевірки та що залишається перевірити після push.
+Створи або онови `.github/workflows/ci.yml`, щоб він:
+- запускався на push до `develop`, `main`, `master` і `feature/**`, pull_request до `develop`, `main` або `master`, а також вручну;
+- використовував одну job з matrix `ubuntu-latest`, `windows-latest`, `macos-latest`;
+- виконував checkout і налаштовував Temurin JDK 21 з Maven cache;
+- на Linux/macOS запускав `bash ./scripts/ci.sh`, а на Windows — `scripts\ci.bat`; не дублював команду Maven у YAML;
+- після успішного скрипту завантажував `build/hello.jar` як artifact із назвою, що містить ОС, і падав, якщо файл не створено;
+- використовував `permissions: contents: read` і не вимагав секретів.
+Не стверджуй, що CI пройшов на GitHub, доки немає реального запуску.
