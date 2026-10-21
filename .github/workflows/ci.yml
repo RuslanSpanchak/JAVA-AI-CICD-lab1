@@ -2,7 +2,9 @@ name: Java Maven CI
 
 on:
   push:
+    branches: [develop, main, master, "feature/**"]
   pull_request:
+    branches: [develop, main, master]
   workflow_dispatch:
 
 permissions:
@@ -28,5 +30,20 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Build and test with Maven
-        run: mvn -B --no-transfer-progress clean verify
+      # The CI workflow delegates build, tests, and executable packaging to scripts.
+      - name: Run CI script (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./scripts/ci.sh
+
+      - name: Run CI script (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: scripts\ci.bat
+
+      - name: Upload executable JAR
+        uses: actions/upload-artifact@v7
+        with:
+          name: hello-${{ matrix.os }}
+          path: build/hello.jar
+          if-no-files-found: error
